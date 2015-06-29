@@ -16,57 +16,9 @@ MetronicApp.config(['$ocLazyLoadProvider', function($ocLazyLoadProvider) {
         // global configs go here
     });
 }]);
-
-/********************************************
- BEGIN: BREAKING CHANGE in AngularJS v1.3.x:
-*********************************************/
-/**
-`$controller` will no longer look for controllers on `window`.
-The old behavior of looking on `window` for controllers was originally intended
-for use in examples, demos, and toy apps. We found that allowing global controller
-functions encouraged poor practices, so we resolved to disable this behavior by
-default.
-
-To migrate, register your controllers with modules rather than exposing them
-as globals:
-
-Before:
-
-```javascript
-function MyController() {
-  // ...
-}
-```
-
-After:
-
-```javascript
-angular.module('myApp', []).controller('MyController', [function() {
-  // ...
-}]);
-
-Although it's not recommended, you can re-enable the old behavior like this:
-
-```javascript
-angular.module('myModule').config(['$controllerProvider', function($controllerProvider) {
-  // this option might be handy for migrating old apps, but please don't use it
-  // in new ones!
-  $controllerProvider.allowGlobals();
-}]);
-**/
-
-//AngularJS v1.3.x workaround for old style controller declarition in HTML
 MetronicApp.config(['$controllerProvider', function($controllerProvider) {
-  // this option might be handy for migrating old apps, but please don't use it
-  // in new ones!
   $controllerProvider.allowGlobals();
 }]);
-
-/********************************************
- END: BREAKING CHANGE in AngularJS v1.3.x:
-*********************************************/
-
-/* Setup global settings */
 MetronicApp.factory('settings', ['$rootScope', function($rootScope) {
     // supported languages
     var settings = {
@@ -134,16 +86,26 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
         Layout.initFooter(); // init footer
     });
 }]);
-
+MetronicApp.controller('loginController',['$scope','$state',function($scope,$state){
+        console.log("this is Custom");
+        $state.go('dashboard');
+}]);
 /* Setup Rounting For All Pages */
 console.log("home");
 MetronicApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
     // Redirect any unmatched url
-    $urlRouterProvider.otherwise("/dashboard.html");  
+    $urlRouterProvider.otherwise("/dashboard1.html");  
     
     $stateProvider
 
         // Dashboard
+        .state('dashboard1', {
+            url: "/dashboard1.html",
+            templateUrl: "views/dashboard1.html",
+            controller:"loginController"
+
+           
+        })
         .state('dashboard', {
             url: "/dashboard.html",
             templateUrl: "views/dashboard.html",            

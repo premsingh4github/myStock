@@ -5,7 +5,7 @@ var Demo = function() {
 
     // Handle Theme Settings
     var handleTheme = function() {
-
+        debugger
         var panel = $('.theme-panel');
 
         if ($('body').hasClass('page-boxed') === false) {
