@@ -9,6 +9,8 @@ var MetronicApp = angular.module("MetronicApp", [
     "oc.lazyLoad",  
     "ngSanitize"
 ]); 
+debugger;
+//document.getElementById('loading').style.display = "none";
 
 /* Configure ocLazyLoader(refer: https://github.com/ocombe/ocLazyLoad) */
 MetronicApp.config(['$ocLazyLoadProvider', function($ocLazyLoadProvider) {
@@ -51,8 +53,35 @@ initialization can be disabled and Layout.init() should be called on page load c
 ***/
 
 /* Setup Layout Part - Header */
-MetronicApp.controller('HeaderController', ['$scope', function($scope) {
+MetronicApp.controller('HeaderController', ['$scope','user','$modal', function($scope,user,$modal) {
     $scope.$on('$includeContentLoaded', function() {
+        console.log($modal);
+          user.getUnverifiedMember().then(function(res){
+           debugger;
+           if(res.data.members.length > 0){
+                
+             $scope.unverifiedMembers = res.data.members;
+           }
+        });
+          $scope.open = function (position) {
+                debugger;
+              var modalInstance = $modal.open({
+                template: '<div>prem '+ position +'</div>',
+                
+                size: 'lg',
+                resolve: {
+                  items: function () {
+                    return $scope.items;
+                  }
+                }
+              });
+
+              modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+              }, function () {
+                console.log('Modal dismissed at: ' + new Date());
+              });
+            };
         Layout.initHeader(); // init header
     });
 }]);
@@ -86,53 +115,155 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
         Layout.initFooter(); // init footer
     });
 }]);
-MetronicApp.controller('loginController',['$scope','$state',function($scope,$state){
-        console.log("this is Custom");
-        $state.go('dashboard');
-}]);
-/* Setup Rounting For All Pages */
-console.log("home");
+ // added by prem
+ 
+ function authInterceptor(API, auth) {
+   
+   return {
+     // automatically attach Authorization header
+     request: function(config) {
+       var token = auth.getToken();
+       if (config.url.indexOf(API) === 0 && token) {
+         config.headers.token = token;
+       }
+
+       return config;
+     },
+
+     // If a token was sent back, save it
+     response: function(res) {
+       if (res.config.url.indexOf(API) === 0 && res.data.token) {
+         auth.saveToken(res.data.token);
+       }
+       return res;
+     },
+   }
+ }
+
+ function authService($window) {
+  
+   var self = this;
+
+   self.saveToken = function(token) {
+     $window.localStorage['jwtToken'] = token;
+   }
+
+   self.getToken = function() {
+     return $window.localStorage['jwtToken'];
+   }
+   self.logout = function() {
+     $window.localStorage.removeItem('jwtToken');
+   }
+ }
+
+ function userService($http, API, auth,$state) {
+
+   var self = this;
+   self.getQuote = function() {
+     return $http.post(API + '/getUser');
+   }
+
+   // add authentication methods here
+   self.register = function($data) {
+     
+     return $http.post(API + 'register',{
+       fname:$data.fname,
+       mname:$data.mname,
+       lname:$data.lname,
+       address:$data.address,
+       identity:$data.identity,
+       nationality:$data.nationality,
+       dob:$data.dob,
+       ban:$data.ban,
+       email:$data.email,
+       cNumber:$data.contactNo,
+       mNumber:$data.mobileNo
+     })
+       .then(function(res) {
+         if(res.status == "200")
+           console.log(res.statusText);
+       })
+   }
+   self.login = function(username, password) {
+     return $http.post(API + 'login',{
+       username:username,
+       password:password
+     });
+   }
+   self.getUnverifiedMember = function(){
+     return $http.post(API + 'API/getUnverifiedMember');
+   }
+   self.isAuthed = function(){
+     return $http.post(API + 'API/isAuthed');
+   }
+ }
+ MetronicApp.factory('authInterceptor', authInterceptor);
+ MetronicApp.service('user', userService);
+ MetronicApp.service('auth', authService);
+ MetronicApp.constant('API', 'http://localhost/dealerAPI/public/');
+ MetronicApp.config(function($httpProvider) {
+   $httpProvider.interceptors.push('authInterceptor');
+ });
+
+
+
 MetronicApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
     // Redirect any unmatched url
-    $urlRouterProvider.otherwise("/dashboard1.html");  
+    $urlRouterProvider.otherwise("/login.html");  
     
     $stateProvider
 
         // Dashboard
-        .state('dashboard1', {
-            url: "/dashboard1.html",
-            templateUrl: "views/dashboard1.html",
+        .state('login', {
+            url: "/login.html",
+            templateUrl: "views/login.html",
             controller:"loginController"
 
            
         })
-        .state('dashboard', {
-            url: "/dashboard.html",
-            templateUrl: "views/dashboard.html",            
-            data: {pageTitle: 'Admin Dashboard Template'},
-            controller: "DashboardController",
-            resolve: {
-                deps: ['$ocLazyLoad', function($ocLazyLoad) {
-                    return $ocLazyLoad.load({
-                        name: 'MetronicApp',
-                        insertBefore: '#ng_load_plugins_before', // load the above css files before a LINK element with this ID. Dynamic CSS files must be loaded between core and theme css files
-                        files: [
-                            'css/morris.css',
-                            'css/tasks.css',
-                            
-                            'js/morris.min.js',
-                            'js/raphael-min.js',
-                            'js/jquery.sparkline.min.js',
+        .state('register', {
+            url: "/register.html",
+            templateUrl: "views/register.html",
+            controller:"registerController"
 
-                            'js/index3.js',
-                            'js/tasks.js',
-
-                             'js/DashboardController.js'
-                        ] 
-                    });
-                }]
-            }
+           
         })
+        .state('dashboard',{
+            url: "/dashboard.html",
+            templateUrl: "views/dashboard.html",
+            controller:"dashboardController"
+        })
+        .state('dashboard2',{
+            url: "/dashboard2.html",
+            templateUrl: "views/dashboard2.html"      
+        })
+        // .state('dashboard', {
+        //     url: "/dashboard.html",
+        //     templateUrl: "views/dashboard.html",            
+        //     data: {pageTitle: 'Admin Dashboard Template'},
+        //     controller: "DashboardController",
+        //     resolve: {
+        //         deps: ['$ocLazyLoad', function($ocLazyLoad) {
+        //             return $ocLazyLoad.load({
+        //                 name: 'MetronicApp',
+        //                 insertBefore: '#ng_load_plugins_before', // load the above css files before a LINK element with this ID. Dynamic CSS files must be loaded between core and theme css files
+        //                 files: [
+        //                     'css/morris.css',
+        //                     'css/tasks.css',
+                            
+        //                     'js/morris.min.js',
+        //                     'js/raphael-min.js',
+        //                     'js/jquery.sparkline.min.js',
+
+        //                     'js/index3.js',
+        //                     'js/tasks.js',
+
+        //                      'js/DashboardController.js'
+        //                 ] 
+        //             });
+        //         }]
+        //     }
+        // })
 
         // AngularJS plugins
         .state('fileupload', {
@@ -459,12 +590,6 @@ MetronicApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvi
                     });
                 }]
             }
-        })
-        .state('login',{
-            url:"/login",
-            templateUrl:"views/login.html",
-            controller:"loginController"
-
         })
 
 }]);
