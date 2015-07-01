@@ -73,7 +73,7 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal', function($
                 templateUrl: 'views/verifyMember.html',
                 controller:'VerifyMemberController',
                 
-                size: 'sm',
+                size: 'lg',
                 resolve: {
                   member: function () {
                     return $scope.member;
@@ -90,6 +90,59 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal', function($
         Layout.initHeader(); // init header
     });
 }]);
-MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','member',function($scope, $modalInstance,member){
+MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','member','user',function($scope, $modalInstance,member,user){
+  $scope.member = member;
+  $scope.mtype = 1;
+  $scope.success = false;
+  $scope.fail = false;
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+    
+  };
+  $scope.send = function(isValid){
+      if($scope.success){
+          $modalInstance.dismiss('cancel');
+      }
+    debugger;
+        if(isValid){
+                  $scope.error = "";
+                  $scope.warning = "";
+                  user.verifyMember($scope.member.id,$scope.username,$scope.password,$scope.mtype).then(function(res){
+                    debugger;
+                    if(res.data.code = 200){
+                      $scope.success = true;
+                      delete 
+      
+                    }
+                    else{
+                      $scope.fail = true;
+                      document.getElementById('message').innerHTML = "fail";
+                    }
+                    
+                  });
+        }
+    else{
+          if($scope.username == undefined){
+            $scope.error = "Invalid Username!";
+          }
+          else{
+            $scope.error = "";
+          }
+          if($scope.password == undefined){
+               $scope.warning = "Invalid Password!";
+          }
+          else{
+              if($scope.passwordConform === $scope.password){
+                  $scope.warning = "";
+              }
+              else{
+                $scope.warning = "Password doesn't match!";
+              }
+          }
+      }
+    }
+    
+    
+  
  debugger;
 }]);

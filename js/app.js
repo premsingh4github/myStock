@@ -53,38 +53,7 @@ initialization can be disabled and Layout.init() should be called on page load c
 ***/
 
 /* Setup Layout Part - Header */
-MetronicApp.controller('HeaderController', ['$scope','user','$modal', function($scope,user,$modal) {
-    $scope.$on('$includeContentLoaded', function() {
-        console.log($modal);
-          user.getUnverifiedMember().then(function(res){
-           debugger;
-           if(res.data.members.length > 0){
-                
-             $scope.unverifiedMembers = res.data.members;
-           }
-        });
-          $scope.open = function (position) {
-                debugger;
-              var modalInstance = $modal.open({
-                template: '<div>prem '+ position +'</div>',
-                
-                size: 'lg',
-                resolve: {
-                  items: function () {
-                    return $scope.items;
-                  }
-                }
-              });
 
-              modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
-              }, function () {
-                console.log('Modal dismissed at: ' + new Date());
-              });
-            };
-        Layout.initHeader(); // init header
-    });
-}]);
 
 /* Setup Layout Part - Sidebar */
 MetronicApp.controller('SidebarController', ['$scope', function($scope) {
@@ -193,6 +162,14 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.getUnverifiedMember = function(){
      return $http.post(API + 'API/getUnverifiedMember');
    }
+   self.verifyMember = function(member_id,username,password,mtype){
+        return $http.post(API + 'API/verifyMember',{
+                member_id:member_id,
+                username:username,
+                password:password,
+                mtype:mtype
+       });
+    }
    self.isAuthed = function(){
      return $http.post(API + 'API/isAuthed');
    }
