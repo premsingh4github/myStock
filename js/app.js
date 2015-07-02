@@ -55,12 +55,7 @@ initialization can be disabled and Layout.init() should be called on page load c
 /* Setup Layout Part - Header */
 
 
-/* Setup Layout Part - Sidebar */
-MetronicApp.controller('SidebarController', ['$scope', function($scope) {
-    $scope.$on('$includeContentLoaded', function() {
-        Layout.initSidebar(); // init sidebar
-    });
-}]);
+
 
 /* Setup Layout Part - Quick Sidebar */
 MetronicApp.controller('QuickSidebarController', ['$scope', function($scope) {    
@@ -195,9 +190,13 @@ MetronicApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvi
             url: "/login.html",
             templateUrl: "views/login.html",
             controller:"loginController"
-
-           
         })
+        .state('home',{
+            url:"/dashboard.html",
+            template:"",
+            controller:'homeController'
+        })
+        //register
         .state('register', {
             url: "/register.html",
             templateUrl: "views/register.html",

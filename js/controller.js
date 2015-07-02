@@ -1,6 +1,11 @@
-MetronicApp.controller('loginController', ['$scope','user','auth','$state', function($scope,user,auth,$state) {
+MetronicApp.controller('loginController', ['$scope','user','auth','$state','$rootScope', function($scope,user,auth,$state,$rootScope) {
+  debugger;
+  if($rootScope.logined != undefined){
+    $state.go('dashboard');
+  }
    user.isAuthed().then(function(res){
      if(res.data.code == 200){
+      $rootScope.logined = true;
          $state.go('dashboard');
      }
    });  
@@ -46,7 +51,9 @@ function register($state,$scope,user){
     }
   }
 };
-MetronicApp.controller('dashboardController',['$scope','$state','user',function($scope,$state,user){
+MetronicApp.controller('dashboardController',['$scope','$state','user','$rootScope',function($scope,$state,user,$rootScope){
+  console.log("this is in dashboard");
+  debugger;
     user.isAuthed().then(function(res){
       if(res.data.code != 200){
           $state.go('login');
@@ -56,16 +63,20 @@ MetronicApp.controller('dashboardController',['$scope','$state','user',function(
      
 
 }]);
-MetronicApp.controller('HeaderController', ['$scope','user','$modal', function($scope,user,$modal) {
+MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope', function($scope,user,$modal,$rootScope) {
     $scope.$on('$includeContentLoaded', function() {
-        console.log($modal);
+
           user.getUnverifiedMember().then(function(res){
            debugger;
            if(res.data.members.length > 0){
                 
-             $scope.unverifiedMembers = res.data.members;
+             $rootScope.unverifiedMembers = res.data.members;
+             $rootScope.isUnverifedMember = ($rootScope.unverifiedMembers.length > 0)? true : false;
            }
         });
+          $rootScope.removeMember = function(id){
+                delete $rootScope.unverifiedMembers[id];
+          }
           $scope.open = function (position) {
                 debugger;
                 $scope.member = $scope.unverifiedMembers[position];
@@ -90,36 +101,44 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal', function($
         Layout.initHeader(); // init header
     });
 }]);
-MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','member','user',function($scope, $modalInstance,member,user){
+MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','member','user','$state','$rootScope',function($scope, $modalInstance,member,user,$state,$rootScope){
+  debugger;
   $scope.member = member;
   $scope.mtype = 1;
   $scope.success = false;
   $scope.fail = false;
   $scope.cancel = function () {
+    debugger;
+    $state.go('home');
     $modalInstance.dismiss('cancel');
-    
   };
   $scope.send = function(isValid){
       if($scope.success){
-          $modalInstance.dismiss('cancel');
+          $scope.cancel();
       }
     debugger;
         if(isValid){
-                  $scope.error = "";
-                  $scope.warning = "";
-                  user.verifyMember($scope.member.id,$scope.username,$scope.password,$scope.mtype).then(function(res){
-                    debugger;
-                    if(res.data.code = 200){
-                      $scope.success = true;
-                      delete 
-      
-                    }
-                    else{
-                      $scope.fail = true;
-                      document.getElementById('message').innerHTML = "fail";
-                    }
+                if($scope.passwordConform === $scope.password){                   
+                    $scope.error = "";
+                    $scope.warning = "";
+                    user.verifyMember($scope.member.id,$scope.username,$scope.password,$scope.mtype).then(function(res){
+                      debugger;
+                      if(res.data.code = 200){
+                        $scope.success = true;
+                        
                     
-                  });
+                      }
+                      else{
+                        $scope.fail = true;
+                        document.getElementById('message').innerHTML = "fail";
+                      }
+                      
+                    });
+                }
+                else{
+                  $scope.warning = "Password doesn't match!";
+                }
+                  
         }
     else{
           if($scope.username == undefined){
@@ -145,4 +164,13 @@ MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','memb
     
   
  debugger;
+}]);
+MetronicApp.controller('homeController',['$state','$rootScope',function($state,$rootScope){
+  $state.go('dashboard');
+}]);
+/* Setup Layout Part - Sidebar */
+MetronicApp.controller('SidebarController', ['$scope', function($scope) {
+    $scope.$on('$includeContentLoaded', function() {
+        Layout.initSidebar(); // init sidebar
+    });
 }]);
