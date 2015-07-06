@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+
+		<div class="modal-header">
+		            <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="cancel()"><span >×</span></button>
+		            <h3 class="modal-title">Branch</h3>
+		 </div>
+		<div class="panel-body">
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped bs-events-table" ng-show="add">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th><input type="text"> <span> Save</span></th>
+					</tr>
+				</thead>
+			</table>
+		    <table class="table table-bordered table-striped bs-events-table" >
+		      <thead>
+		        <tr>
+		          <th>Name</th>
+		          <th>Action</th>
+		        </tr>
+		      </thead>
+		      <tbody>
+		        <tr>
+		          <td>Ktm</td>
+		          <td><span >Edit</span> <span>Delete</span></td>
+		        </tr>
+		        
+		      </tbody>
+		      <tfoot></tfoot>
+		    </table>
+		   
+		  </div>
+		  	<span ng-click="addBranch()" ng-hide="add">Add Branch</span>
+		  	<span ng-click="addBranch()" ng-show="add">List Branch</span>
+		</div>
+</div>
+
+			
+
+			
+
