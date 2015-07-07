@@ -63,9 +63,18 @@ MetronicApp.controller('dashboardController',['$scope','$state','user','$rootSco
      
 
 }]);
-MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope', function($scope,user,$modal,$rootScope) {
+MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope','$state', function($scope,user,$modal,$rootScope,$state) {
     $scope.$on('$includeContentLoaded', function() {
-
+          $scope.logout = function(){
+            user.logout().then(function(res){
+                debugger;
+                if(res.data.code == 200){
+                  delete localStorage.jwtToken;
+                  $state.go("login");
+                }
+            });
+          }
+          $scope.name = "test name";
           user.getUnverifiedMember().then(function(res){
            debugger;
            if(res.data.members.length > 0){

@@ -168,6 +168,9 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.isAuthed = function(){
      return $http.post(API + 'API/isAuthed');
    }
+   self.logout = function(){
+        return $http.post(API + 'API/logout');
+   }
  }
  MetronicApp.factory('authInterceptor', authInterceptor);
  MetronicApp.service('user', userService);
