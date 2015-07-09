@@ -1,7 +1,9 @@
 /**
 Core script to handle the entire theme and core functions
 **/
-var QuickSidebar = function () {
+var QuickSidebar = function ($rootScope) {
+    //console.log($rootScope);
+    debugger;
 
     // Handles quick sidebar toggler
     var handleQuickSidebarToggler = function () {
@@ -116,7 +118,49 @@ var QuickSidebar = function () {
                 return false;
             }
         });
+
+            var wsUri = "ws://localhost:9000";  
+    websocket = new WebSocket(wsUri); 
+    websocket.onopen = function(ev) {
+        console.log("connected to socket");
+    }
+        websocket.onmessage = function(ev) {
+            debugger;
+        console.log(ev.data);
+        var msg = JSON.parse(ev.data); //PHP sends Json data
+        var type = msg.type; //message type
+        var umsg = msg.message; //message text
+        var uname = msg.name; //user name
+        var ucolor = msg.color; //color
+        var time = new Date();
+       // var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
+        //(dir, time, name, avatar, message)
+        var tpl = '';
+        tpl += '<div class="post in">';
+        tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() +'avatar2.jpg"/>';
+        tpl += '<div class="message">';
+        tpl += '<span class="arrow"></span>';
+        tpl += '<a href="#" class="name">Bob Nilson</a>&nbsp;';
+        tpl += '<span class="datetime">' + (time.getHours() + ':' + time.getMinutes()) + '</span>';
+        tpl += '<span class="body">';
+        tpl += umsg;
+        tpl += '</span>';
+        tpl += '</div>';
+        tpl += '</div>';
+
+        var message =  tpl;
+
+
+        message = $(message);
+        var wrapper = $('.page-quick-sidebar-wrapper');
+        var wrapperChat = wrapper.find('.page-quick-sidebar-chat');
+        wrapperChat.find(".page-quick-sidebar-chat-user-messages").append(message);
+        
     };
+    };
+
+
+
 
     // Handles quick sidebar tasks
     var handleQuickSidebarAlerts = function () {
@@ -139,7 +183,7 @@ var QuickSidebar = function () {
         Metronic.addResizeHandler(initAlertsSlimScroll); // reinitialize on window resize
     };
 
-    // Handles quick sidebar settings
+    //Handles quick sidebar settings
     var handleQuickSidebarSettings = function () {
         var wrapper = $('.page-quick-sidebar-wrapper');
         var wrapperAlerts = wrapper.find('.page-quick-sidebar-settings');
