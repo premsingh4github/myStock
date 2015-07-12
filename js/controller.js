@@ -1,5 +1,5 @@
 MetronicApp.controller('loginController', ['$scope','user','auth','$state','$rootScope', function($scope,user,auth,$state,$rootScope) {
-  debugger;
+  
   if($rootScope.logined != undefined){
     $state.go('dashboard');
   }
@@ -19,14 +19,23 @@ MetronicApp.controller('loginController', ['$scope','user','auth','$state','$roo
        .then(handleRequest, handleRequest);
        $scope.token = localStorage.jwtToken;
      } else {
+      //$scope.error = ""
      }
      
    };
    function handleRequest(res) {
-     var token = res.data ? res.data.token : null;
+    
+    if(res.data.code == 200){
+      var token = res.data ? res.data.token : null;
      if(token) { 
         $state.go('dashboard');
         }
+    }
+    else if(res.data.code == 500){
+      $scope.error = "Invalid Credential"
+
+    }
+     
    
    }
    $scope.token = localStorage.jwtToken;
@@ -52,8 +61,7 @@ function register($state,$scope,user){
   }
 };
 MetronicApp.controller('dashboardController',['$scope','$state','user','$rootScope',function($scope,$state,user,$rootScope){
-  console.log("this is in dashboard");
-  debugger;
+  
     user.isAuthed().then(function(res){
       if(res.data.code != 200){
           $state.go('login');
@@ -67,18 +75,19 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope
     $scope.$on('$includeContentLoaded', function() {
           $scope.logout = function(){
             user.logout().then(function(res){
-                debugger;
+                
                 if(res.data.code == 200){
+                  
+                  delete $rootScope.logined;
                   delete localStorage.jwtToken;
+
                   $state.go("login");
                 }
             });
           }
           $scope.name = "test name";
           user.getUnverifiedMember().then(function(res){
-           debugger;
            if(res.data.members.length > 0){
-                
              $rootScope.unverifiedMembers = res.data.members;
              $rootScope.isUnverifedMember = ($rootScope.unverifiedMembers.length > 0)? true : false;
            }
@@ -87,7 +96,7 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope
                 delete $rootScope.unverifiedMembers[id];
           }
           $scope.open = function (position) {
-                debugger;
+                
                 $scope.member = $scope.unverifiedMembers[position];
               var modalInstance = $modal.open({
                 templateUrl: 'views/verifyMember.html',
@@ -179,11 +188,11 @@ MetronicApp.controller('homeController',['$state','$rootScope',function($state,$
 }]);
 /* Setup Layout Part - Sidebar */
 MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,$modal) {
-  debugger;
+ 
     $scope.$on('$includeContentLoaded', function() {
         Layout.initSidebar(); 
         $scope.branch = function (position) {
-              debugger;
+             
              // $scope.member = $scope.unverifiedMembers[position];
             var modalInstance = $modal.open({
               templateUrl: 'views/branch.html',
@@ -215,4 +224,15 @@ MetronicApp.controller('BranchController',['$scope','$modalInstance',function($s
   $scope.addBranch = function(){
     $scope.add = ($scope.add)?false : true ;
   }
+}]);
+/* Setup Layout Part - Quick Sidebar */
+MetronicApp.controller('QuickSidebarController', ['$scope','user','$rootScope', function($scope,$user,$rootScope) {    
+    $scope.$on('$includeContentLoaded', function() {
+        setTimeout(function(){
+            QuickSidebar.init(); // init quick sidebar        
+        }, 2000)
+    });
+    $user.getOnlineMember().then(function(res){
+        $rootScope.members = res.data.members;
+    });
 }]);

@@ -1,9 +1,9 @@
 /**
 Core script to handle the entire theme and core functions
 **/
-var QuickSidebar = function ($rootScope) {
+var QuickSidebar = function () {
     //console.log($rootScope);
-    debugger;
+    
 
     // Handles quick sidebar toggler
     var handleQuickSidebarToggler = function () {
@@ -42,10 +42,16 @@ var QuickSidebar = function ($rootScope) {
         Metronic.addResizeHandler(initChatSlimScroll); // reinitialize on window resize
 
         wrapper.find('.page-quick-sidebar-chat-users .media-list > .media').click(function () {
+            debugger;
+                $('#message_'+ this.getAttribute("data-id")).removeClass("hidden");
+                $('.page-quick-sidebar-back-to-list').attr('data-id',this.getAttribute('data-id'));
             wrapperChat.addClass("page-quick-sidebar-content-item-shown");
         });
 
         wrapper.find('.page-quick-sidebar-chat-user .page-quick-sidebar-back-to-list').click(function () {
+            debugger;
+            $('#message_' + this.getAttribute('data-id')).addClass('hidden');
+           // $('#message_'+ this.getAttribute("data-id")).addClass("hidden");
             wrapperChat.removeClass("page-quick-sidebar-content-item-shown");
         });
 
@@ -61,9 +67,10 @@ var QuickSidebar = function ($rootScope) {
             }
 
             var preparePost = function(dir, time, name, avatar, message) {
+
                 var tpl = '';
                 tpl += '<div class="post '+ dir +'">';
-                tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() + avatar +'.jpg"/>';
+                //tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() + avatar +'.jpg"/>';
                 tpl += '<div class="message">';
                 tpl += '<span class="arrow"></span>';
                 tpl += '<a href="#" class="name">Bob Nilson</a>&nbsp;';
@@ -78,9 +85,25 @@ var QuickSidebar = function ($rootScope) {
             };
 
             // handle post
+            debugger;
+            var receiver = $('.page-quick-sidebar-back-to-list').attr('data-id');
             var time = new Date();
             var message = preparePost('out', (time.getHours() + ':' + time.getMinutes()), "Bob Nilson", 'avatar3', text);
             message = $(message);
+            
+            var msg = {
+            message: text,
+            id: receiver,
+            color : 'FF7000',
+            token: localStorage.jwtToken
+
+            };
+            //convert and send data to server
+
+            var chatContainer = wrapperChat.find(".page-quick-sidebar-chat-user-messages #message_" + receiver);
+            debugger;
+
+            websocket.send(JSON.stringify(msg));
             chatContainer.append(message);
 
             var getLastPostPos = function() {
@@ -99,16 +122,16 @@ var QuickSidebar = function ($rootScope) {
             input.val("");
 
             // simulate reply
-            setTimeout(function(){
-                var time = new Date();
-                var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
-                message = $(message);
-                chatContainer.append(message);
+            // setTimeout(function(){
+            //     var time = new Date();
+            //     var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
+            //     message = $(message);
+            //     chatContainer.append(message);
 
-                chatContainer.slimScroll({
-                    scrollTo: getLastPostPos()
-                });
-            }, 3000);
+            //     chatContainer.slimScroll({
+            //         scrollTo: getLastPostPos()
+            //     });
+            // }, 3000);
         };
 
         wrapperChat.find('.page-quick-sidebar-chat-user-form .btn').click(handleChatMessagePost);
@@ -121,23 +144,40 @@ var QuickSidebar = function ($rootScope) {
 
             var wsUri = "ws://localhost:9000";  
     websocket = new WebSocket(wsUri); 
+    websocket.onclose   = function(ev){
+        console.log("onclose");
+    }; 
+    websocket.onerror   = function(ev){
+        debugger;
+        console.log("onerror");
+    }; 
+
+
     websocket.onopen = function(ev) {
         console.log("connected to socket");
+        var msg = {
+            message: "text",
+            id: "test",
+            color : 'FF7000',
+            token: localStorage.jwtToken
+
+            };
+            debugger;
+            websocket.send(JSON.stringify(msg));
     }
         websocket.onmessage = function(ev) {
-            debugger;
         console.log(ev.data);
         var msg = JSON.parse(ev.data); //PHP sends Json data
         var type = msg.type; //message type
         var umsg = msg.message; //message text
-        var uname = msg.name; //user name
+        var receiver = msg.id; //user name
         var ucolor = msg.color; //color
         var time = new Date();
        // var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
         //(dir, time, name, avatar, message)
         var tpl = '';
         tpl += '<div class="post in">';
-        tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() +'avatar2.jpg"/>';
+       // tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() +'avatar2.jpg"/>';
         tpl += '<div class="message">';
         tpl += '<span class="arrow"></span>';
         tpl += '<a href="#" class="name">Bob Nilson</a>&nbsp;';
@@ -154,7 +194,8 @@ var QuickSidebar = function ($rootScope) {
         message = $(message);
         var wrapper = $('.page-quick-sidebar-wrapper');
         var wrapperChat = wrapper.find('.page-quick-sidebar-chat');
-        wrapperChat.find(".page-quick-sidebar-chat-user-messages").append(message);
+        //wrapperChat.find("#message_1").append(message);
+        wrapperChat.find(".page-quick-sidebar-chat-user-messages  #message_" + receiver).append(message);
         
     };
     };

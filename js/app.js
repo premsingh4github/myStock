@@ -9,7 +9,23 @@ var MetronicApp = angular.module("MetronicApp", [
     "oc.lazyLoad",  
     "ngSanitize"
 ]); 
-debugger;
+if (window.XMLHttpRequest)
+                {
+                    ajaxObject = new XMLHttpRequest();
+                    
+                    ajaxObject.open("POST","http://localhost/dealerAPI/public/connectSocket",true);
+                    ajaxObject.send();
+                    
+                    ajaxObject.onreadystatechange = function()
+                    {
+                        if (ajaxObject.readyState == 4 && ajaxObject.status == 200)
+                        {
+                           
+                            
+                        }
+                    }
+                }
+
 //document.getElementById('loading').style.display = "none";
 
 /* Configure ocLazyLoader(refer: https://github.com/ocombe/ocLazyLoad) */
@@ -57,14 +73,7 @@ initialization can be disabled and Layout.init() should be called on page load c
 
 
 
-/* Setup Layout Part - Quick Sidebar */
-MetronicApp.controller('QuickSidebarController', ['$scope', function($scope) {    
-    $scope.$on('$includeContentLoaded', function() {
-        setTimeout(function(){
-            QuickSidebar.init(); // init quick sidebar        
-        }, 2000)
-    });
-}]);
+
 
 /* Setup Layout Part - Theme Panel */
 MetronicApp.controller('ThemePanelController', ['$scope', function($scope) {    
@@ -156,6 +165,9 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    }
    self.getUnverifiedMember = function(){
      return $http.post(API + 'API/getUnverifiedMember');
+   }
+   self.getOnlineMember = function(){
+        return $http.post(API + 'API/getOnlineMember');
    }
    self.verifyMember = function(member_id,username,password,mtype){
         return $http.post(API + 'API/verifyMember',{
