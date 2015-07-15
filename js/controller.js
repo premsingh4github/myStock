@@ -234,5 +234,8 @@ MetronicApp.controller('QuickSidebarController', ['$scope','user','$rootScope', 
     });
     $user.getOnlineMember().then(function(res){
         $rootScope.members = res.data.members;
+        debugger;
+        localStorage.setItem('members', JSON.stringify(res.data.members));
+        //localStorage.members = res.data.members;
     });
 }]);

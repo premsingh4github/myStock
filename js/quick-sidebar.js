@@ -67,6 +67,7 @@ var QuickSidebar = function () {
             }
 
             var preparePost = function(dir, time, name, avatar, message) {
+                debugger;
 
                 var tpl = '';
                 tpl += '<div class="post '+ dir +'">';
@@ -166,6 +167,17 @@ var QuickSidebar = function () {
             websocket.send(JSON.stringify(msg));
     }
         websocket.onmessage = function(ev) {
+
+
+                function getById(id, myArray) {
+                   return myArray.filter(function(obj) {
+                     if(obj.id == id) {
+                       return obj 
+                     }
+                   })[0]
+                 }
+
+
         console.log(ev.data);
         var msg = JSON.parse(ev.data); //PHP sends Json data
         var type = msg.type; //message type
@@ -173,6 +185,8 @@ var QuickSidebar = function () {
         var receiver = msg.id; //user name
         var ucolor = msg.color; //color
         var time = new Date();
+        var me = getById(receiver,JSON.parse(localStorage.members));
+        debugger;
        // var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
         //(dir, time, name, avatar, message)
         var tpl = '';
@@ -180,8 +194,11 @@ var QuickSidebar = function () {
        // tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() +'avatar2.jpg"/>';
         tpl += '<div class="message">';
         tpl += '<span class="arrow"></span>';
-        tpl += '<a href="#" class="name">Bob Nilson</a>&nbsp;';
-        tpl += '<span class="datetime">' + (time.getHours() + ':' + time.getMinutes()) + '</span>';
+        if(me != undefined){
+
+        tpl += '<a href="#" class="name">' + me.fname + " " + me.mname + " " + me.lname + '</a>&nbsp;';
+        }
+        //tpl += '<span class="datetime">' + (time.getHours() + ':' + time.getMinutes()) + '</span>';
         tpl += '<span class="body">';
         tpl += umsg;
         tpl += '</span>';
