@@ -183,6 +183,11 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.logout = function(){
         return $http.post(API + 'API/logout');
    }
+   self.addBranch = function(branchName){
+        return $http.post(API + 'API/createBranch',{
+            branchName : branchName
+        });
+   }
  }
  MetronicApp.factory('authInterceptor', authInterceptor);
  MetronicApp.service('user', userService);

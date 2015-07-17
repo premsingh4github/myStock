@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PubSub Communication</title>
+    <script src="angular.min.js" type="text/javascript"></script>
+    <style>
+        div {
+            background-color: rgba(120,120,120,0.2);
+            padding: 10px;
+        }
+    </style>
+    <script type="text/javascript">
+        // var app = angular.module("app", []);
+        // app.controller("PingCtrl", [ '$scope', '$rootScope', function($scope, $rootScope){
+        //     $scope.time = "(never)";
+        //     $rootScope.$on("pong", function(e, time){
+        //         $scope.time = time;
+        //     });
+        //     $scope.ping = function(){
+        //         $rootScope.$broadcast("ping", new Date());
+        //     };
+        // }]);
+        // app.controller("PongCtrl", [ '$scope', function($scope){
+        //     $scope.time = "(never)";
+        //     $scope.$on("ping", function(e, time){
+        //         $scope.time = time;
+        //     });
+        //     $scope.pong = function(){
+        //         $scope.$emit("pong", new Date());
+        //     };
+        // }]);
+var app = angular.module('app', []);
+
+app.controller('controllerA', ['$scope', 'pubsubService', controllerA]);
+function controllerA($scope, pubsubService) {
+
+    $scope.changeTeam = function () {
+        pubsubService.changeTeam($scope.teamname);
+    };
+}
+
+app.controller('controllerB', ['$scope', 'pubsubService', controllerB]);
+function controllerB($scope, pubsubService) {
+
+    pubsubService.onChangeTeam($scope, function (message) {
+        $scope.team = message.filterTeam;
+    });
+    
+    $scope.confirm = function () {
+        pubsubService.confirmTeam($scope.team);
+    };
+}
+
+app.controller('controllerC', ['$scope', 'pubsubService', controllerC]);
+function controllerC($scope, pubsubService) {
+    
+    pubsubService.onConfirmTeam($scope, function (message) {
+        $scope.team = 'Confirmed name: ' + message.confirmedTeam;
+    });
+}
+
+var serviceId = 'pubsubService';
+app.factory(serviceId, ['$rootScope', pubsubService]);
+
+function pubsubService($rootScope) {
+   
+    var CHANGE_TEAM = "changeTeam";
+    var CHANGE_BRANCH = "changeBranch";
+    var branches = [{"name":"ktm"},{"name":"lalitpur"},{"name":"suraj"}];
+    var changeTeam = function (filterTeam) {
+
+        $rootScope.$broadcast(CHANGE_TEAM, {
+            filterTeam: filterTeam
+        });
+    };
+    var addBranch = function(branchName){
+        branches.push({"name":branchName});
+        $rootScope.$broadcast(CHANGE_BRANCH, {
+            branches: branches
+        });
+    }
+    var removeBranch = function(branchName){
+        
+        $rootScope.$broadcast(CHANGE_BRANCH, {
+            branches: branches
+        });
+    }
+
+    var onChangeTeam = function ($scope, handler) {
+        $scope.$on(CHANGE_TEAM, function (event, message) {
+            handler(message);
+        });
+    };
+    
+    var CONFIRM_TEAM = "confirmTeam";
+    var confirmTeam = function (name) {
+
+        $rootScope.$broadcast(CONFIRM_TEAM, {
+            confirmedTeam: name
+        });
+    };
+
+    var onConfirmTeam = function ($scope, handler) {
+        $scope.$on(CONFIRM_TEAM, function (event, message) {
+            handler(message);
+        });
+    };
+    var getBranch = function(){
+        return branches;
+    }
+    return {
+        changeTeam: changeTeam,
+        onChangeTeam: onChangeTeam,
+        confirmTeam: confirmTeam,
+        onConfirmTeam: onConfirmTeam,
+        getBranch : getBranch,
+        addBranch : addBranch,
+        removeBranch : removeBranch
+    };
+}
+
+app.controller('controllerD', ['$scope','pubsubService', controllerD]);
+function controllerD($scope,pubsubService) {
+   $scope.branches = pubsubService.getBranch();
+   $scope.team = 
+   pubsubService.onChangeTeam($scope, function (message) {
+       $scope.team = message.filterTeam;
+   });
+}
+app.controller('controllerE', ['$scope','pubsubService', controllerE]);
+function controllerE($scope,pubsubService) {
+   $scope.addBranch = function () {
+       pubsubService.addBranch($scope.branchName);
+   };
+}
+app.controller('controllerF', ['$scope','pubsubService', controllerF]);
+function controllerF($scope,pubsubService) {
+   //$scope.branches = pubsubService.getBranch();
+   $scope.removeBranch = function () {
+       pubsubService.removeBranch($scope.branchName);
+   };
+}
+    </script>
+</head>
+<body ng-app="app">
+<div ng-controller="controllerA">
+    <input data-ng-model="teamname" type="text" data-ng-change="changeTeam()" />
+</div>
+<div ng-controller="controllerB">You typed: {{team}}<br />
+    <input type="button" value="Confirm" data-ng-click="confirm()" />
+</div>
+<div ng-controller="controllerC">{{team}}</div>
+<div ng-controller="controllerD">
+    <div ng-repeat="branch in branches" >
+      <span>{{branch.name}}</span>
+    </div>
+</div>
+<div ng-controller="controllerE">
+    <input data-ng-model="branchName" type="text" /><span ng-click="addBranch()">add</span>
+</div>
+<div ng-controller="controllerF">
+    <input data-ng-model="branchName" type="text" /><span ng-click="removeBranch()">remove</span>
+</div>
+
+
+<!-- <div ng-controller="PingCtrl">
+
+    <h3>Ping Controller</h3>
+
+    <p>Received last pong at {{ time }}.</p>
+
+    <button type="button" ng-click="ping()">Ping!</button>
+
+</div>
+<br />
+<div ng-controller="PongCtrl">
+
+    <h3>Pong Controller</h3>
+
+    <p>Received last ping at {{ time }}.</p>
+
+    <button type="button" ng-click="pong()">Pong!</button>
+
+</div> -->
+</body>
+</html>

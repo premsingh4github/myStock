@@ -215,14 +215,26 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
       });
 
 }]);
-MetronicApp.controller('BranchController',['$scope','$modalInstance',function($scope,$modalInstance){
+MetronicApp.controller('BranchController',['$scope','$modalInstance','user','$rootScope',function($scope,$modalInstance,user,$rootScope){
   debugger;
   $scope.add = false;
+   $scope.isDone = false;
+   $scope.branch = null;
   $scope.cancel = function(){
     $modalInstance.dismiss('cancel');
   }
   $scope.addBranch = function(){
     $scope.add = ($scope.add)?false : true ;
+  }
+  $scope.branches = [{"name":"ktm"}];
+  $scope.save = function(){
+      user.addBranch($scope.branchName).then(function(es){
+        if(es.data.code == 200){
+          $scope.branches.push({"name":es.data.branch.name})
+          $scope.branch = es.data.branch.name;
+          $scope.isDone = true;
+        }
+      });
   }
 }]);
 /* Setup Layout Part - Quick Sidebar */
