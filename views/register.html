@@ -27,7 +27,7 @@
                       </div>
                       <div class="form-group" show-errors>
                       		<input type="text" placeholder="Identity number" class="form-control" ng-model="identity" name="identity" required/>
-                          <p class="help-block" ng-show="userForm.identity.$invalid && userForm.identity.$dirty || (userForm.address.$invalid && submitted)"">The identity number is required</p>
+                          <p class="help-block" ng-show="userForm.identity.$invalid && userForm.identity.$dirty || (userForm.address.$invalid && submitted)">The identity number is required</p>
                       </div>
                       <div class="form-group" show-errors>
                           <input type="text" placeholder="Nationality" class="form-control" ng-model="nationality" name="nationality" required/>
@@ -51,7 +51,14 @@
                       <div class="form-group" show-errors>
                           <input type="text" placeholder="Mobile number" class="form-control" ng-model="mobileNo" name="mobileNo" />
                           
-                      </div>                      
+                      </div>  
+                      <div class="form-group">
+                          <div id="message" class="note note-success note-bordered" ng-show="isDone" >
+                              <h3>Your registration is waiting for admin approval! <span class="close" ng-click="cancel()"></span></h3>
+                              
+                          </div>
+                          
+                      </div>                     
                       <input class="btn  btn-success btn-block" type="submit" ng-click="register(userForm.$valid)" value="Send">
                       <input class="btn btn-danger btn-block" ng-click='cancel()'  value="Cancel">
                   </fieldset>

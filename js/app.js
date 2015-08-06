@@ -151,11 +151,8 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
        email:$data.email,
        cNumber:$data.contactNo,
        mNumber:$data.mobileNo
-     })
-       .then(function(res) {
-         if(res.status == "200")
-           console.log(res.statusText);
-       })
+     });
+       
    }
    self.login = function(username, password) {
      return $http.post(API + 'login',{
@@ -205,7 +202,15 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    }
    self.getStocks = function(){
      return $http.post(API + 'API/getStocks');
-   }
+   };
+   self.addProduct = function(name){
+        return $http.post(API + 'API/creatProduct',{
+            name:name
+        });
+   };
+   self.getProducts = function(){
+     return $http.post(API + 'API/getProducts');
+   };
  }
  MetronicApp.factory('authInterceptor', authInterceptor);
  MetronicApp.service('user', userService);
@@ -232,13 +237,13 @@ MetronicApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvi
         .state('home',{
             url:"/dashboard.html",
             template:"",
-            controller:'homeController'
+            controller:'HomeController'
         })
         //register
         .state('register', {
             url: "/register.html",
             templateUrl: "views/register.html",
-            controller:"registerController"
+            controller:"RegisterController"
 
            
         })

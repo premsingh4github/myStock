@@ -25,9 +25,8 @@
 						<th>Product</th>
 						<th>
 							<select ng-model="productTypeId">
-								<option  value="1">Diamond</option>
-								<option value="2">Gold</option>
-								<option value="3">silver</option>
+								<option ng-repeat="product in products"  value="{{product.id}}">{{product.name}}</option>
+								
 							</select>
 						</th>
 					</tr>
@@ -67,6 +66,7 @@
 		        <tr >
 		          <th>Branch</th>
 		          <th>Location</th>
+		          <th>Product</th>
 		          <th>Quantity</th>
 		          <th>Action</th>
 		        </tr>
@@ -75,6 +75,7 @@
 		        <tr ng-repeat="stock in stocks">
 		          <td>{{branchName(stock.branchId)}}</td>
 		          <td>{{branchLocation(stock.branchId)}}</td>
+		          <td>{{product(stock.productTypeId)}}</td>
 		          <td>{{stock.onlineQuantity}}</td>
 		          <td><span >Edit</span> <span>Delete</span></td>
 		        </tr>

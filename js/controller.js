@@ -48,15 +48,20 @@ MetronicApp.controller('loginController', ['$scope','user','auth','$state','$roo
    }
 }]);
 
-MetronicApp.controller('registerController',register);
+MetronicApp.controller('RegisterController',register);
 function register($state,$scope,user){
+  $scope.isDone = false;
   $scope.cancel = function(){
     $state.go('login');
   }
   $scope.register = function($valid){
     $scope.submitted = true;
     if($valid){
-     user.register($scope);
+     user.register($scope).then(function(res) {
+         if(res.status == "200")
+          $scope.isDone = true;
+           console.log(res.statusText);
+       });
     }
   }
 };
@@ -183,7 +188,7 @@ MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','memb
   
  debugger;
 }]);
-MetronicApp.controller('homeController',['$state','$rootScope','user','pubsubService',function($state,$rootScope,user,pubsubService){
+MetronicApp.controller('HomeController',['$state','$rootScope','user','pubsubService',function($state,$rootScope,user,pubsubService){
   user.getBranch().then(function(es){
     if(es.data.code == 200){
       es.data.branches.forEach(function(ls,i){
@@ -196,6 +201,14 @@ MetronicApp.controller('homeController',['$state','$rootScope','user','pubsubSer
      
       es.data.stocks.forEach(function(ls,i){
         pubsubService.addStock(ls);
+      });
+    }
+  });
+  user.getProducts().then(function(es){
+    if(es.data.code == 200){
+     
+      es.data.products.forEach(function(ls,i){
+        pubsubService.addProduct(ls);
       });
     }
   });
@@ -235,6 +248,19 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
               console.log('Modal dismissed at: ' + new Date());
             });
           };
+          $scope.product = function () {
+              // $scope.member = $scope.unverifiedMembers[position];
+             var modalInstance = $modal.open({
+               templateUrl: 'views/product.html',
+               controller:'ProductController'
+             });
+
+             modalInstance.result.then(function (selectedItem) {
+               
+             }, function () {
+               console.log('Modal dismissed at: ' + new Date());
+             });
+           };
 
       });
 
@@ -278,6 +304,7 @@ MetronicApp.controller('StockController',['$scope','$modalInstance','user','$roo
 
   $scope.branches = pubsubService.getBranches() ;
   $scope.stocks = pubsubService.getStocks();
+  $scope.products = pubsubService.getProducts();
   $scope.branchName = function(branchId){
       var name ;
     
@@ -293,15 +320,20 @@ MetronicApp.controller('StockController',['$scope','$modalInstance','user','$roo
   }
   $scope.branchLocation = function(branchId){
       var name ;
-    
       $scope.branches.forEach(function(el,i){
         if(el.id == branchId){
-         
           name = el.location;
         }
-        //console.log(el);
       });
-    
+    return name;
+  }
+  $scope.product = function(Id){
+      var name ;
+      $scope.products.forEach(function(el,i){
+        if(el.id == Id){
+          name = el.name;
+        }
+      });
     return name;
   }
   $scope.save = function(){
@@ -311,6 +343,32 @@ MetronicApp.controller('StockController',['$scope','$modalInstance','user','$roo
           pubsubService.addStock(es.data.stock);
           $scope.branch = es.data.stock.id;
           $scope.isDone = true;
+        }
+      });
+  }
+}]);
+MetronicApp.controller('ProductController',['$scope','$modalInstance','user','$rootScope','pubsubService',function($scope,$modalInstance,user,$rootScope,pubsubService){
+  
+  $scope.add = false;
+   $scope.isDone = false;
+   $scope.branch = null;
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  }
+  $scope.addBranch = function(){
+    $scope.add = ($scope.add)?false : true ;
+  }
+  $scope.products = pubsubService.getProducts() ;
+  $scope.save = function(){
+    debugger;
+      user.addProduct($scope.name).then(function(es){
+        debugger;
+        if(es.data.code == 200){
+          pubsubService.addProduct(es.data.product);
+          debugger;
+          $scope.branch = es.data.product.name;
+          $scope.isDone = true;
+          $scope.name = null;
         }
       });
   }

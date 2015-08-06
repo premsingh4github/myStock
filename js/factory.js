@@ -2,6 +2,7 @@
 	function pubsubService($rootScope){
 		var branches = [];
 		var stocks = [];
+		var products = [];
 		function getBranches(){
 			return branches;
 		}
@@ -29,12 +30,23 @@
     		    stocks: stocks
     		});
     	}
+    	function getProducts(){
+    		return products;
+    	}
+    	function addProduct(product){
+    		products.push(product);
+    		$rootScope.$broadcast('addProduct',{
+    		    products: products
+    		});
+    	}
 		return {
 		    getBranches: getBranches,
 		    addBranch : addBranch,
 		    removeBranch: removeBranch,
 		    getStocks :getStocks,
-		    addStock : addStock
+		    addStock : addStock,
+		    getProducts: getProducts,
+		    addProduct : addProduct
 		    
 		};
 	}
