@@ -183,7 +183,22 @@ MetronicApp.controller('VerifyMemberController',['$scope','$modalInstance','memb
   
  debugger;
 }]);
-MetronicApp.controller('homeController',['$state','$rootScope',function($state,$rootScope){
+MetronicApp.controller('homeController',['$state','$rootScope','user','pubsubService',function($state,$rootScope,user,pubsubService){
+  user.getBranch().then(function(es){
+    if(es.data.code == 200){
+      es.data.branches.forEach(function(ls,i){
+        pubsubService.addBranch(ls);
+      });
+    }
+  });
+  user.getStocks().then(function(es){
+    if(es.data.code == 200){
+     
+      es.data.stocks.forEach(function(ls,i){
+        pubsubService.addStock(ls);
+      });
+    }
+  });
   $state.go('dashboard');
 }]);
 /* Setup Layout Part - Sidebar */
@@ -191,17 +206,13 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
  
     $scope.$on('$includeContentLoaded', function() {
         Layout.initSidebar(); 
-        $scope.branch = function (position) {
+        $scope.branch = function () {
              
              // $scope.member = $scope.unverifiedMembers[position];
             var modalInstance = $modal.open({
               templateUrl: 'views/branch.html',
-              controller:'BranchController',
-              resolve: {
-                member: function () {
-                  //return $scope.member;
-                }
-              }
+              controller:'BranchController'
+              
             });
 
             modalInstance.result.then(function (selectedItem) {
@@ -210,13 +221,26 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
               console.log('Modal dismissed at: ' + new Date());
             });
           };
-         
+         $scope.stock = function () {
+             
+             // $scope.member = $scope.unverifiedMembers[position];
+            var modalInstance = $modal.open({
+              templateUrl: 'views/stock.html',
+              controller:'StockController'
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+              
+            }, function () {
+              console.log('Modal dismissed at: ' + new Date());
+            });
+          };
 
       });
 
 }]);
-MetronicApp.controller('BranchController',['$scope','$modalInstance','user','$rootScope',function($scope,$modalInstance,user,$rootScope){
-  debugger;
+MetronicApp.controller('BranchController',['$scope','$modalInstance','user','$rootScope','pubsubService',function($scope,$modalInstance,user,$rootScope,pubsubService){
+  
   $scope.add = false;
    $scope.isDone = false;
    $scope.branch = null;
@@ -226,12 +250,66 @@ MetronicApp.controller('BranchController',['$scope','$modalInstance','user','$ro
   $scope.addBranch = function(){
     $scope.add = ($scope.add)?false : true ;
   }
-  $scope.branches = [{"name":"ktm"}];
+  $scope.branches = pubsubService.getBranches() ;
   $scope.save = function(){
-      user.addBranch($scope.branchName).then(function(es){
+    debugger;
+      user.addBranch($scope.branchName,$scope.location).then(function(es){
+        debugger;
         if(es.data.code == 200){
-          $scope.branches.push({"name":es.data.branch.name})
+          pubsubService.addBranch(es.data.branch);
+          debugger;
           $scope.branch = es.data.branch.name;
+          $scope.isDone = true;
+        }
+      });
+  }
+}]);
+MetronicApp.controller('StockController',['$scope','$modalInstance','user','$rootScope','pubsubService',function($scope,$modalInstance,user,$rootScope,pubsubService){
+  
+  $scope.add = false;
+   $scope.isDone = false;
+   $scope.branch = null;
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  }
+  $scope.addBranch = function(){
+    $scope.add = ($scope.add)?false : true ;
+  }
+
+  $scope.branches = pubsubService.getBranches() ;
+  $scope.stocks = pubsubService.getStocks();
+  $scope.branchName = function(branchId){
+      var name ;
+    
+      $scope.branches.forEach(function(el,i){
+        if(el.id == branchId){
+         
+          name = el.name;
+        }
+        //console.log(el);
+      });
+    
+    return name;
+  }
+  $scope.branchLocation = function(branchId){
+      var name ;
+    
+      $scope.branches.forEach(function(el,i){
+        if(el.id == branchId){
+         
+          name = el.location;
+        }
+        //console.log(el);
+      });
+    
+    return name;
+  }
+  $scope.save = function(){
+      user.addStock($scope.branchId,$scope.productTypeId,$scope.minQuantity,$scope.onlineQuantity,$scope.deliveryCharge,$scope.lot).then(function(es){
+        
+        if(es.data.code == 200){
+          pubsubService.addStock(es.data.stock);
+          $scope.branch = es.data.stock.id;
           $scope.isDone = true;
         }
       });
@@ -246,7 +324,7 @@ MetronicApp.controller('QuickSidebarController', ['$scope','user','$rootScope', 
     });
     $user.getOnlineMember().then(function(res){
         $rootScope.members = res.data.members;
-        debugger;
+       
         localStorage.setItem('members', JSON.stringify(res.data.members));
         //localStorage.members = res.data.members;
     });

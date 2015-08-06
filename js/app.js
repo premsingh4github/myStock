@@ -183,10 +183,28 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.logout = function(){
         return $http.post(API + 'API/logout');
    }
-   self.addBranch = function(branchName){
+   self.addBranch = function(branchName,location){
+
         return $http.post(API + 'API/createBranch',{
-            branchName : branchName
+            branchName : branchName,
+            branchLocation : location
         });
+   }
+   self.getBranch = function(){
+    return $http.post(API + 'API/getBranch');
+   }
+   self.addStock = function(branchId,productTypeId,minQuantity,onlineQuantity,deliveryCharge,lot){
+        return $http.post(API + 'API/createStock',{
+            branchId : branchId,
+            productTypeId : productTypeId,
+            minQuantity : minQuantity,
+            onlineQuantity : onlineQuantity,
+            deliveryCharge : deliveryCharge,
+            lot : lot
+        });
+   }
+   self.getStocks = function(){
+     return $http.post(API + 'API/getStocks');
    }
  }
  MetronicApp.factory('authInterceptor', authInterceptor);

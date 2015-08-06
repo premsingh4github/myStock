@@ -42,14 +42,14 @@ var QuickSidebar = function () {
         Metronic.addResizeHandler(initChatSlimScroll); // reinitialize on window resize
 
         wrapper.find('.page-quick-sidebar-chat-users .media-list > .media').click(function () {
-            debugger;
+            
                 $('#message_'+ this.getAttribute("data-id")).removeClass("hidden");
                 $('.page-quick-sidebar-back-to-list').attr('data-id',this.getAttribute('data-id'));
             wrapperChat.addClass("page-quick-sidebar-content-item-shown");
         });
 
         wrapper.find('.page-quick-sidebar-chat-user .page-quick-sidebar-back-to-list').click(function () {
-            debugger;
+           
             $('#message_' + this.getAttribute('data-id')).addClass('hidden');
            // $('#message_'+ this.getAttribute("data-id")).addClass("hidden");
             wrapperChat.removeClass("page-quick-sidebar-content-item-shown");
@@ -67,7 +67,7 @@ var QuickSidebar = function () {
             }
 
             var preparePost = function(dir, time, name, avatar, message) {
-                debugger;
+                
 
                 var tpl = '';
                 tpl += '<div class="post '+ dir +'">';
@@ -86,7 +86,7 @@ var QuickSidebar = function () {
             };
 
             // handle post
-            debugger;
+           
             var receiver = $('.page-quick-sidebar-back-to-list').attr('data-id');
             var time = new Date();
             var message = preparePost('out', (time.getHours() + ':' + time.getMinutes()), "Bob Nilson", 'avatar3', text);
@@ -102,7 +102,7 @@ var QuickSidebar = function () {
             //convert and send data to server
 
             var chatContainer = wrapperChat.find(".page-quick-sidebar-chat-user-messages #message_" + receiver);
-            debugger;
+            
 
             websocket.send(JSON.stringify(msg));
             chatContainer.append(message);
@@ -149,7 +149,7 @@ var QuickSidebar = function () {
         console.log("onclose");
     }; 
     websocket.onerror   = function(ev){
-        debugger;
+       
         console.log("onerror");
     }; 
 
@@ -163,7 +163,7 @@ var QuickSidebar = function () {
             token: localStorage.jwtToken
 
             };
-            debugger;
+            
             websocket.send(JSON.stringify(msg));
     }
         websocket.onmessage = function(ev) {
@@ -186,7 +186,7 @@ var QuickSidebar = function () {
         var ucolor = msg.color; //color
         var time = new Date();
         var me = getById(receiver,JSON.parse(localStorage.members));
-        debugger;
+        
        // var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
         //(dir, time, name, avatar, message)
         var tpl = '';
