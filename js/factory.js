@@ -1,13 +1,49 @@
-	MetronicApp.factory('pubsubService',['$rootScope',pubsubService]);
-	function pubsubService($rootScope){
+	MetronicApp.factory('pubsubService',['$rootScope','$websocket',pubsubService]);
+	function pubsubService($rootScope,$websocket){
+		var user;
 		var branches = [];
 		var stocks = [];
 		var products = [];
         var memberTypes = [];
+        var members = [];
+		
+		// var wsUri = "ws://localhost:9000";  
+	 //    websocket = new WebSocket(wsUri); 
+	 //    websocket.onclose   = function(ev){
+	 //        console.log("onclose");
+	 //    }; 
+	 //    websocket.onerror   = function(ev){
+	 //        console.log("onerror");
+	 //    };
+	 //    websocket.onopen = function(ev) {
+	 //    }
+	 //    websocket.onmessage = function(ev) {
+	 //    	debugger;
+	 //    	var msg = JSON.parse(ev.data); 
+	 //    	var type = msg.type; 
+	 //    	var data = msg.data; 
+	 //    	var clientId = msg.clientId; 
+	    	
+
+	 //    	if(type == 'addMember') 
+	 //    	{
+	 //    		debugger;
+	 //    		members.push(data);
+	 //    		$rootScope.$broadcast('addMember',{
+	 //    		    members: members
+	 //    		});	
+	 //    	}
+	 //    	if(type == 'system')
+	 //    	{
+	    		
+	 //    	}
+	    	
+	 //    };
+		
 		function getBranches(){
 			return branches;
 		}
-
+		
 		var addBranch = function(branch){
 	        branches.push(branch);
 	        $rootScope.$broadcast('addBranch',{
@@ -49,6 +85,35 @@
                 memberTypes: memberTypes
             });
         }
+        function getMembers(){
+            return members;
+        }
+        function addMember(member){
+        	// var msg = {        	
+        	// clientId: 1,
+        	// type: "addMember",
+        	// data : member
+        	// };
+        	
+        	// websocket.send(JSON.stringify(msg));
+            members.push(member);
+            $rootScope.$broadcast('addMember',{
+                members: members
+            });
+        }
+        function addUser(userId){
+        	members.forEach(function(el,i){
+    			if(el.id == userId){
+    				user = el;
+    			}
+    			$rootScope.$broadcast('addUser',{
+    			    user: user
+    			});
+    		});
+        }
+        function getUser(){
+        	return user;
+        }
 		return {
 		    getBranches: getBranches,
 		    addBranch : addBranch,
@@ -58,7 +123,11 @@
 		    getProducts: getProducts,
 		    addProduct : addProduct,
             getMemberTypes : getMemberTypes,
-            addMemberType: addMemberType
+            addMemberType: addMemberType,
+            getMembers : getMembers,
+            addMember : addMember,
+            addUser : addUser,
+            getUser : getUser
 		    
 		};
 	}

@@ -142,7 +142,7 @@ var QuickSidebar = function () {
                 return false;
             }
         });
-
+/**
             var wsUri = "ws://localhost:9000";  
     websocket = new WebSocket(wsUri); 
     websocket.onclose   = function(ev){
@@ -211,10 +211,9 @@ var QuickSidebar = function () {
         message = $(message);
         var wrapper = $('.page-quick-sidebar-wrapper');
         var wrapperChat = wrapper.find('.page-quick-sidebar-chat');
-        //wrapperChat.find("#message_1").append(message);
         wrapperChat.find(".page-quick-sidebar-chat-user-messages  #message_" + receiver).append(message);
-        
-    };
+       
+    }; */
     };
 
 

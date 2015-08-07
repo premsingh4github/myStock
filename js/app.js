@@ -7,24 +7,25 @@ var MetronicApp = angular.module("MetronicApp", [
     "ui.router", 
     "ui.bootstrap", 
     "oc.lazyLoad",  
-    "ngSanitize"
+    "ngSanitize",
+    "ngWebsocket"
 ]); 
-if (window.XMLHttpRequest)
-                {
-                    ajaxObject = new XMLHttpRequest();
+// if (window.XMLHttpRequest)
+//                 {
+//                     ajaxObject = new XMLHttpRequest();
                     
-                    ajaxObject.open("POST","http://localhost/dealerAPI/public/connectSocket",true);
-                    ajaxObject.send();
+//                     ajaxObject.open("POST","http://localhost/dealerAPI/public/connectSocket",true);
+//                     ajaxObject.send();
                     
-                    ajaxObject.onreadystatechange = function()
-                    {
-                        if (ajaxObject.readyState == 4 && ajaxObject.status == 200)
-                        {
+//                     ajaxObject.onreadystatechange = function()
+//                     {
+//                         if (ajaxObject.readyState == 4 && ajaxObject.status == 200)
+//                         {
                            
                             
-                        }
-                    }
-                }
+//                         }
+//                     }
+//                 }
 
 //document.getElementById('loading').style.display = "none";
 
@@ -214,6 +215,11 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.getMemberTypes = function(){
         return $http.post(API + 'API/getMemberTypes');
    }
+   self.getMembers = function(){
+        return $http.post(API + 'API/getMembers');
+   }
+  
+   
  }
  MetronicApp.factory('authInterceptor', authInterceptor);
  MetronicApp.service('user', userService);

@@ -65,18 +65,21 @@ function register($state,$scope,user){
     }
   }
 };
-MetronicApp.controller('dashboardController',['$scope','$state','user','$rootScope',function($scope,$state,user,$rootScope){
+MetronicApp.controller('dashboardController',['$scope','$state','user','$rootScope','pubsubService',function($scope,$state,user,$rootScope,pubsubService){
   
     user.isAuthed().then(function(res){
+       
       if(res.data.code != 200){
+
           $state.go('login');
       }
+      pubsubService.addUser(res.data.user);
     });
     //$scope.unverifiedMembers = [{"id":2,"fname":"dileep","mname":"","lname":"yadav","address":"ktm","identity":"1234","nationality":"nepales","dob":"1989","ban":"18015","email":"dileep@gmail.com","cNumber":"987","mNumber":"980","username":"","password":"$2y$10$YAX7IcvSV2QQnQdR.JfsNuJdzH.B7OhOziiJ9a9A385A4W4YwmTwS","status":"0","mtype":"0","created_at":"2015-06-30 08:04:31","updated_at":"2015-06-30 08:04:31"}];
      
 
 }]);
-MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope','$state', function($scope,user,$modal,$rootScope,$state) {
+MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope','$state','pubsubService', function($scope,user,$modal,$rootScope,$state,pubsubService) {
     $scope.$on('$includeContentLoaded', function() {
           $scope.logout = function(){
             user.logout().then(function(res){
@@ -97,6 +100,8 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope
              $rootScope.isUnverifedMember = ($rootScope.unverifiedMembers.length > 0)? true : false;
            }
         });
+          $scope.user = pubsubService.getUser();
+          debugger;
           $rootScope.removeMember = function(id){
                 delete $rootScope.unverifiedMembers[id];
           }
@@ -216,6 +221,13 @@ MetronicApp.controller('HomeController',['$state','$rootScope','user','pubsubSer
     if(es.data.code == 200){
       es.data.memberTypes.forEach(function(ls,i){
         pubsubService.addMemberType(ls);
+      });
+    }
+  });
+  user.getMembers().then(function(es){
+    if(es.data.code == 200){
+      es.data.members.forEach(function(ls,i){
+        pubsubService.addMember(ls);
       });
     }
   });
@@ -405,10 +417,14 @@ MetronicApp.controller('MemberController',['$scope','$modalInstance','user','$ro
   }
   $scope.products = pubsubService.getProducts() ;
   $scope.memberTypes = pubsubService.getMemberTypes();
+  $scope.members = pubsubService.getMembers();
+  $scope.user = pubsubService.getUser();
+  debugger
   $scope.save = function(){
       user.register($scope.member).then(function(es){
         if(es.data.code == 200){
           delete $scope.member;
+          pubsubService.addMember(es.data.member);
           $scope.branch = es.data.member.fname;
           $scope.isDone = true;
           $scope.name = null;
