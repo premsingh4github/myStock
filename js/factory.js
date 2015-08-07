@@ -3,6 +3,7 @@
 		var branches = [];
 		var stocks = [];
 		var products = [];
+        var memberTypes = [];
 		function getBranches(){
 			return branches;
 		}
@@ -39,6 +40,15 @@
     		    products: products
     		});
     	}
+        function getMemberTypes(){
+            return memberTypes;
+        }
+        function addMemberType(memberType){
+            memberTypes.push(memberType);
+            $rootScope.$broadcast('addMemberType',{
+                memberTypes: memberTypes
+            });
+        }
 		return {
 		    getBranches: getBranches,
 		    addBranch : addBranch,
@@ -46,7 +56,9 @@
 		    getStocks :getStocks,
 		    addStock : addStock,
 		    getProducts: getProducts,
-		    addProduct : addProduct
+		    addProduct : addProduct,
+            getMemberTypes : getMemberTypes,
+            addMemberType: addMemberType
 		    
 		};
 	}

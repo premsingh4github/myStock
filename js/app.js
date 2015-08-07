@@ -211,6 +211,9 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.getProducts = function(){
      return $http.post(API + 'API/getProducts');
    };
+   self.getMemberTypes = function(){
+        return $http.post(API + 'API/getMemberTypes');
+   }
  }
  MetronicApp.factory('authInterceptor', authInterceptor);
  MetronicApp.service('user', userService);

@@ -212,6 +212,14 @@ MetronicApp.controller('HomeController',['$state','$rootScope','user','pubsubSer
       });
     }
   });
+  user.getMemberTypes().then(function(es){
+    if(es.data.code == 200){
+      es.data.memberTypes.forEach(function(ls,i){
+        pubsubService.addMemberType(ls);
+      });
+    }
+  });
+
   $state.go('dashboard');
 }]);
 /* Setup Layout Part - Sidebar */
@@ -253,6 +261,19 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
              var modalInstance = $modal.open({
                templateUrl: 'views/product.html',
                controller:'ProductController'
+             });
+
+             modalInstance.result.then(function (selectedItem) {
+               
+             }, function () {
+               console.log('Modal dismissed at: ' + new Date());
+             });
+           };
+           $scope.member = function () {
+              // $scope.member = $scope.unverifiedMembers[position];
+             var modalInstance = $modal.open({
+               templateUrl: 'views/member.html',
+               controller:'MemberController'
              });
 
              modalInstance.result.then(function (selectedItem) {
@@ -360,13 +381,35 @@ MetronicApp.controller('ProductController',['$scope','$modalInstance','user','$r
   }
   $scope.products = pubsubService.getProducts() ;
   $scope.save = function(){
-    debugger;
+    
       user.addProduct($scope.name).then(function(es){
-        debugger;
         if(es.data.code == 200){
           pubsubService.addProduct(es.data.product);
-          debugger;
           $scope.branch = es.data.product.name;
+          $scope.isDone = true;
+          $scope.name = null;
+        }
+      });
+  }
+}]);
+MetronicApp.controller('MemberController',['$scope','$modalInstance','user','$rootScope','pubsubService',function($scope,$modalInstance,user,$rootScope,pubsubService){
+  
+  $scope.add = false;
+   $scope.isDone = false;
+   $scope.branch = null;
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  }
+  $scope.addBranch = function(){
+    $scope.add = ($scope.add)?false : true ;
+  }
+  $scope.products = pubsubService.getProducts() ;
+  $scope.memberTypes = pubsubService.getMemberTypes();
+  $scope.save = function(){
+      user.register($scope.member).then(function(es){
+        if(es.data.code == 200){
+          delete $scope.member;
+          $scope.branch = es.data.member.fname;
           $scope.isDone = true;
           $scope.name = null;
         }
