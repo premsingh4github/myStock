@@ -73,7 +73,7 @@ MetronicApp.controller('dashboardController',['$scope','$state','user','$rootSco
 
           $state.go('login');
       }
-      pubsubService.addUser(res.data.user);
+      
     });
     //$scope.unverifiedMembers = [{"id":2,"fname":"dileep","mname":"","lname":"yadav","address":"ktm","identity":"1234","nationality":"nepales","dob":"1989","ban":"18015","email":"dileep@gmail.com","cNumber":"987","mNumber":"980","username":"","password":"$2y$10$YAX7IcvSV2QQnQdR.JfsNuJdzH.B7OhOziiJ9a9A385A4W4YwmTwS","status":"0","mtype":"0","created_at":"2015-06-30 08:04:31","updated_at":"2015-06-30 08:04:31"}];
      
@@ -93,15 +93,16 @@ MetronicApp.controller('HeaderController', ['$scope','user','$modal','$rootScope
                 }
             });
           }
-          $scope.name = "test name";
+         
           user.getUnverifiedMember().then(function(res){
            if(res.data.members.length > 0){
              $rootScope.unverifiedMembers = res.data.members;
              $rootScope.isUnverifedMember = ($rootScope.unverifiedMembers.length > 0)? true : false;
            }
         });
-          $scope.user = pubsubService.getUser();
-          debugger;
+         $scope.user = pubsubService.getUser();
+          console.log($scope.user);
+         
           $rootScope.removeMember = function(id){
                 delete $rootScope.unverifiedMembers[id];
           }
@@ -229,13 +230,16 @@ MetronicApp.controller('HomeController',['$state','$rootScope','user','pubsubSer
       es.data.members.forEach(function(ls,i){
         pubsubService.addMember(ls);
       });
+      pubsubService.addUser(es.data.user);
+      console.log(pubsubService.getUser());
+     
     }
   });
 
   $state.go('dashboard');
 }]);
 /* Setup Layout Part - Sidebar */
-MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,$modal) {
+MetronicApp.controller('SidebarController', ['$scope','$modal','$rootScope','pubsubService', function($scope,$modal,$rootScope,pubsubService) {
  
     $scope.$on('$includeContentLoaded', function() {
         Layout.initSidebar(); 
@@ -254,6 +258,18 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
               console.log('Modal dismissed at: ' + new Date());
             });
           };
+        $scope.user = pubsubService.getUser();
+        debugger;
+        $scope.isAccountAdmin = function(user){
+          
+          if(user.mtype === 3){
+            return true;
+          }
+          
+            return false;
+          
+            
+        }
          $scope.stock = function () {
              
              // $scope.member = $scope.unverifiedMembers[position];
@@ -286,6 +302,32 @@ MetronicApp.controller('SidebarController', ['$scope','$modal', function($scope,
              var modalInstance = $modal.open({
                templateUrl: 'views/member.html',
                controller:'MemberController'
+             });
+
+             modalInstance.result.then(function (selectedItem) {
+               
+             }, function () {
+               console.log('Modal dismissed at: ' + new Date());
+             });
+           };
+           $scope.account = function () {
+              // $scope.member = $scope.unverifiedMembers[position];
+             var modalInstance = $modal.open({
+               templateUrl: 'views/account.html',
+               controller:'AccountController'
+             });
+
+             modalInstance.result.then(function (selectedItem) {
+               
+             }, function () {
+               console.log('Modal dismissed at: ' + new Date());
+             });
+           };
+           $scope.clientStock = function () {
+              // $scope.member = $scope.unverifiedMembers[position];
+             var modalInstance = $modal.open({
+               templateUrl: 'views/clientStock.html',
+               controller:'ClientStockController'
              });
 
              modalInstance.result.then(function (selectedItem) {
@@ -419,7 +461,7 @@ MetronicApp.controller('MemberController',['$scope','$modalInstance','user','$ro
   $scope.memberTypes = pubsubService.getMemberTypes();
   $scope.members = pubsubService.getMembers();
   $scope.user = pubsubService.getUser();
-  debugger
+  
   $scope.save = function(){
       user.register($scope.member).then(function(es){
         if(es.data.code == 200){
@@ -430,6 +472,104 @@ MetronicApp.controller('MemberController',['$scope','$modalInstance','user','$ro
           $scope.name = null;
         }
       });
+  }
+}]);
+MetronicApp.controller('AccountController',['$scope','$modalInstance','user','$rootScope','pubsubService',function($scope,$modalInstance,user,$rootScope,pubsubService){
+  
+  $scope.add = false;
+   $scope.isDone = false;
+   $scope.branch = null;
+
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  }
+  $scope.addBranch = function(memberId,code){
+    debugger;
+    $scope.client = code;
+    $scope.memberId = memberId;
+    debugger;
+    $scope.add = ($scope.add)?false : true ;
+  }
+  $scope.products = pubsubService.getProducts() ;
+  $scope.memberTypes = pubsubService.getMemberTypes();
+  $scope.members = pubsubService.getMembers();
+  $scope.user = pubsubService.getUser();
+  
+  $scope.save = function(){
+      user.addAccount($scope).then(function(es){
+        debugger;
+        if(es.data.code == 200){
+
+          //delete $scope.account;
+          //pubsubService.addMember(es.data.member);
+          $scope.branch = $scope.client;
+          $scope.isDone = true;
+          $scope.name = null;
+        }
+      });
+  }
+}]);
+MetronicApp.controller('ClientStockController',['$scope','$modalInstance','user','$rootScope','pubsubService',function($scope,$modalInstance,user,$rootScope,pubsubService){
+  
+  $scope.add = false;
+   $scope.isDone = false;
+   $scope.branch = null;
+   $scope.user = pubsubService.getUser();
+  $scope.cancel = function(){
+    $modalInstance.dismiss('cancel');
+  }
+  $scope.addBranch = function(clientStock,branch,product){
+     debugger;
+    $scope.clientStock = clientStock;
+    $scope.branchName = branch;
+    $scope.clientProduct = product;
+    $scope.add = ($scope.add)?false : true ;
+  }
+
+  $scope.branches = pubsubService.getBranches() ;
+  $scope.stocks = pubsubService.getStocks();
+  $scope.products = pubsubService.getProducts();
+  $scope.branchName = function(branchId){
+      var name ;
+    
+      $scope.branches.forEach(function(el,i){
+        if(el.id == branchId){
+         
+          name = el.name;
+        }
+        //console.log(el);
+      });
+    
+    return name;
+  }
+  $scope.branchLocation = function(branchId){
+      var name ;
+      $scope.branches.forEach(function(el,i){
+        if(el.id == branchId){
+          name = el.location;
+        }
+      });
+    return name;
+  }
+  $scope.product = function(Id){
+      var name ;
+      $scope.products.forEach(function(el,i){
+        if(el.id == Id){
+          name = el.name;
+        }
+      });
+    return name;
+  }
+  $scope.save = function(){
+      // user.addClientStock($scope,$scope.user.id).then(function(es){
+        
+      //   if(es.data.code == 200){
+      //     debugger;
+      //     pubsubService.addStock(es.data.stock);
+      //     $scope.branch = es.data.stock.id;
+      //     $scope.isDone = true;
+      //   }
+      // });
   }
 }]);
 /* Setup Layout Part - Quick Sidebar */

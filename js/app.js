@@ -218,7 +218,19 @@ MetronicApp.controller('FooterController', ['$scope', function($scope) {
    self.getMembers = function(){
         return $http.post(API + 'API/getMembers');
    }
-  
+    self.addAccount = function(account){
+        return $http.post(API + 'API/addAccount',{
+            memberId: account.memberId,
+            type: account.type,
+            amount: account.amount
+        })
+    }
+    self.addClientStock = function(data){
+        return $http.post(API + 'API/addClientStock',{
+            stockId: data.clientStock.id,
+            amount: data.amount
+        })
+    }
    
  }
  MetronicApp.factory('authInterceptor', authInterceptor);
